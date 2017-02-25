@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/lesson_number_text_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:text="1 |"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:textColor="#FFFFFFFF"
+        android:background="#FF004555"/>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="#FF0099aa"/>
+
+    <TextView
+        android:id="@+id/lesson_text_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="17"
+        android:text="Нет урока"
+        android:textSize="30sp"
+        android:gravity="center_vertical"
+        android:background="#FF0099aa"
+        android:textColor="#ffcccccc"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/class_number_text_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="4"
+        android:text="228"
+        android:textSize="30sp"
+        android:gravity="center"
+        android:textStyle="italic"
+        android:background="#FF008899"
+        android:textColor="#ffd6d6d6"/>
+
+</LinearLayout>
