@@ -72,7 +72,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
                 holder.lesson.setText(lessons.get(position).getLessonTitle().toString(), TextView.BufferType.EDITABLE);
             else
                 holder.lesson.setHint(Lesson.EMPTY_LESSON);
-            if (lessons.get(position).getClassNumber() > Lesson.EMPTY_CLASS_NUMBER)
+            if (lessons.get(position).getClassNumber().equals(Lesson.EMPTY_CLASS_NUMBER))
                 holder.classNumber.setText("" + lessons.get(position).getClassNumber(), TextView.BufferType.EDITABLE);
             else
                 holder.classNumber.setHint("Каб.");
@@ -128,7 +128,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
                         lessons.get(holder.ref).setClassNumber(Lesson.EMPTY_CLASS_NUMBER);
                         holder.classNumber.setHint("Каб.");
                     } else {
-                        lessons.get(holder.ref).setClassNumber(Integer.parseInt(arg0.toString()));
+                        lessons.get(holder.ref).setClassNumber(arg0.toString());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -171,7 +171,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
         for(int i = 0; i < dbArr.size(); i++){
             mainArr.add(dbArr.get(i));
             if((i != dbArr.size() - 1 && !dbArr.get(i).isDay() && dbArr.get(i+1).isDay()) || i == dbArr.size()-1)
-                mainArr.add(new Lesson(0, 0, Lesson.ADD_NEW_LESSON, dbArr.get(i).getWeekDay()));
+                mainArr.add(new Lesson(0, "0", Lesson.ADD_NEW_LESSON, dbArr.get(i).getWeekDay()));
         }
         return mainArr;
     }

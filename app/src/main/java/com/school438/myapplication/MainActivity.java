@@ -1,40 +1,35 @@
 package com.school438.myapplication;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TabHost;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.school438.myapplication.SchoolManager.Lesson;
-import com.school438.myapplication.SchoolManager.News;
-import com.school438.myapplication.SchoolManager.AdapterCustomLessons;
-import com.school438.myapplication.SchoolManager.AdapterCustomLessonsEdit;
-import com.school438.myapplication.SchoolManager.AdapterCustomNews;
+import com.school438.myapplication.Fragments.NewsFragment;
+import com.school438.myapplication.Fragments.RingsFragment;
+import com.school438.myapplication.Fragments.SettingsFragment;
+import com.school438.myapplication.Fragments.SheduleFragment;
 import com.school438.myapplication.SchoolManager.DBManager;
-import com.school438.myapplication.Utils.FloatingActionButton;
-import com.yandex.disk.rest.Credentials;
-import com.yandex.disk.rest.ProgressListener;
-import com.yandex.disk.rest.RestClient;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -43,133 +38,328 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
-    public static final String siteTitle = "http://sch438uv.mskobr.ru/";
-    public static final String user = "shamilm10031";
-    public static final String token = "AQAAAAARB6_JAAQMUP88TmC_30mvkdcBetDgwWA";
-    public static final String dbAdress = "http://cloud.w3bs.ru/download/allShedules.db";
-    public static final String downloadedDBName = "allShedules.db";
+    private static final String TAG_RINGS = "Звонки";
+    private static final String TAG_NEWS = "Новости";
+    private static final String TAG_SETTINGS = "Настройки";
+    private static final String TAG_SHEDULE = "Расписание";
+    private static final String TAG_CHOOSE_CLASS = "Выбрать класс";
+
+    private RingsFragment ringsFragment;
+    private NewsFragment newsFragment;
+    private SettingsFragment settingsFragment;
+    private SheduleFragment sheduleFragment;
+
+    public static final String APP_PREFERENCES_CURRENT_CLASS = "currentclass";
+    public static final String APP_PREFERENCES_CURRENT_TAG = "currenttag";
+    public static final String APP_PREFERENCES = "mysettings";
     public static String dbPath;
-    private TabHost tabHost;
-    private ListView newsListView;
-    private ListView lessonsListView;
-    private ListView lessonsEditListView;
+    public static String CURRENT_TABLE_NAME = DBManager.ELEVENTH_A;
+    public static String CURRENT_TAG = TAG_NEWS;
+    private Toolbar toolbar;
     private DBManager dbManager;
-    private AdapterCustomNews adapterNews;
-    private AdapterCustomLessons adapter;
-    private AdapterCustomLessonsEdit adapterEdit;
-    private ArrayList<Lesson> lessonArrayList;
-    private ArrayList<News> newsArrayList;
-    private Document siteDoc;
-    private RestClient restClient;
-    private Credentials credentials;
+    private SharedPreferences mSettings;
+    private DrawerLayout drawer;
+    private View navHeader;
+    private FloatingActionButton fab;
+    private NavigationView navigationView;
+    private TextView txtCLass;
+    private Handler mHandler;
+    private AlertDialog.Builder builder;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        dbPath = "/data/data/" + getPackageName() + "/databases/";
         dbManager = DBManager.getInstance(this);
         dbManager.copyDBFromAssets(this);
-        if (dbManager.getAllLessonsFromDB() == null)
+        if (dbManager.getAllLessonsFromLocalDB(CURRENT_TABLE_NAME) == null)
             dbManager.copyDBFromAssets(this);
-        lessonArrayList = dbManager.getAllLessonsFromDB();
-        setUpTabHosts();
-        addFloatButton();
-        createAdapters();
-        initialisateListViews();
-        fillListViews();
-        credentials = new Credentials(user, token);
-        restClient = new RestClient(credentials);
-        newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mHandler = new Handler();
+        setUpFloatButton();
+        recieveSettings();
+        setUpNavigationView();
+        createFragments();
+        loadHomeFragment();
+        refreshFloatButton();
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        final String[] classArr ={"5А", "5Б", "6А", "6Б", "7А", "7Б", "8А", "8Б"
+                , "9А", "9Б", "10А", "11А"};
+
+        builder = new AlertDialog.Builder(this);
+        builder.setTitle("Выберите класс");
+        builder.setItems(classArr, new DialogInterface.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent (Intent.ACTION_VIEW, Uri.parse(newsArrayList.get(position).getLink()));
-                startActivity(intent);
+            public void onClick(DialogInterface dialog, int item) {
+                switch (item){
+                    case 0:
+                        CURRENT_TABLE_NAME = DBManager.FITH_A;
+                        break;
+                    case 1:
+                        CURRENT_TABLE_NAME = DBManager.FITH_B;
+                        break;
+                    case 2:
+                        CURRENT_TABLE_NAME = DBManager.SIXTH_A;
+                        break;
+                    case 3:
+                        CURRENT_TABLE_NAME = DBManager.SIXTH_B;
+                        break;
+                    case 4:
+                        CURRENT_TABLE_NAME = DBManager.SEVENTH_A;
+                        break;
+                    case 5:
+                        CURRENT_TABLE_NAME = DBManager.SEVENTH_B;
+                        break;
+                    case 6:
+                        CURRENT_TABLE_NAME = DBManager.EIGHTTH_A;
+                        break;
+                    case 7:
+                        CURRENT_TABLE_NAME = DBManager.EIGHTTH_B;
+                        break;
+                    case 8:
+                        CURRENT_TABLE_NAME = DBManager.NINE_A;
+                        break;
+                    case 9:
+                        CURRENT_TABLE_NAME = DBManager.NINE_B;
+                        break;
+                    case 10:
+                        CURRENT_TABLE_NAME = DBManager.TENTH_A;
+                        break;
+                    case 11:
+                        CURRENT_TABLE_NAME = DBManager.ELEVENTH_A;
+                        break;
+                }
+                setCurrentClass(CURRENT_TABLE_NAME);
+                sheduleFragment.refreshListView();
+                txtCLass.setText(getCurrentClassString());
             }
         });
-        dbPath = Environment.getExternalStorageDirectory().toString();
+        builder.setCancelable(true);
+        return builder.create();
     }
 
-    private void fillListViews(){
-        View footerView = ((LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.list_item_button, null, false);
-        lessonsListView.setAdapter(adapterEdit);
-        lessonsListView.addFooterView(footerView);
-        footerView = ((LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.list_item_editor_button, null, false);
-        //lessonsEditListView.addFooterView(footerView);
-        //lessonsEditListView.setAdapter(adapterEdit);
-        LoadNewsTask l = new LoadNewsTask();
-        l.execute();
+    public void setUpFloatButton() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        refreshFloatButton();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (CURRENT_TAG) {
+                    case TAG_NEWS:
+                        newsFragment.loadNews();
+                        break;
+                    case TAG_SHEDULE:
+                        sheduleFragment.saveShedule();
+                        break;
+                }
+            }
+        });
     }
 
-    private void initialisateListViews(){
-        newsListView = (ListView) findViewById(R.id.list_view_news);
-        lessonsListView = (ListView) findViewById(R.id.list_view_lessons);
-        //lessonsEditListView = (ListView) findViewById(R.id.list_view_lessons_edit);
+    private void createFragments() {
+        ringsFragment = new RingsFragment();
+        settingsFragment = new SettingsFragment();
+        sheduleFragment = new SheduleFragment();
+        newsFragment = new NewsFragment();
     }
 
-    private void createAdapters(){
-       // adapter = new AdapterCustomLessons(lessonArrayList, this);
-        if (lessonArrayList == null) {
-            adapterEdit = new AdapterCustomLessonsEdit(Lesson.getEmptyShedule(), this);
-            System.out.println("EMPTY SHEDULE USED");
-        } else {
-            adapterEdit = new AdapterCustomLessonsEdit (
-                    AdapterCustomLessonsEdit.makeSheduleForMainListView(lessonArrayList), this);
-            //(Lesson.getEmptyShedule(), this);
-            //(AdapterCustomLessonsEdit.makeSheduleForEditor(lessonArrayList), this);
-            System.out.println("SHEDULE FROM DB USED");
+    private void recieveSettings() {
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        if (mSettings.contains(APP_PREFERENCES_CURRENT_CLASS))
+            this.CURRENT_TABLE_NAME = getCurrentClassTableName();
+        if (mSettings.contains(APP_PREFERENCES_CURRENT_TAG)) {
+            this.CURRENT_TAG = getCurrentTag();
+            System.out.println("From Settings :" + CURRENT_TAG);
         }
     }
 
-    private void setUpTabHosts(){
-        tabHost = (TabHost) findViewById(R.id.tabhost);
-        tabHost.setup();
-
-        TabHost.TabSpec tabSpec = tabHost.newTabSpec("1");
-        tabSpec.setContent(R.id.tab_layout_news);
-        tabSpec.setIndicator("Новости");
-        tabHost.addTab(tabSpec);
-
-        tabSpec = tabHost.newTabSpec("2");
-        tabSpec.setContent(R.id.tab_layout_shedule);
-        tabSpec.setIndicator("Расписание");
-        tabHost.addTab(tabSpec);
-
-        /*tabSpec = tabHost.newTabSpec("3");
-        tabSpec.setContent(R.id.tab_layout_edit_shedule);
-        tabSpec.setIndicator("Редактор");
-        tabHost.addTab(tabSpec);*/
-        tabHost.setCurrentTab(0);
+    private Fragment getHomeFragment() {
+        switch (CURRENT_TAG) {
+            case TAG_RINGS:
+                return ringsFragment;
+            case TAG_SETTINGS:
+                return settingsFragment;
+            case TAG_SHEDULE:
+                return sheduleFragment;
+            default:
+                return newsFragment;
+        }
     }
 
-    private void addFloatButton(){
-        final FloatingActionButton fabButton = new FloatingActionButton.Builder(this)
-                .withButtonColor(Color.WHITE)
-                .withDrawable(getDrawable(R.drawable.ic_cloud_download_white_24dp))
-                .withGravity(Gravity.BOTTOM | Gravity.RIGHT)
-                .withMargins(0, 0, 16, 16)
-                .create();
-        fabButton.setOnTouchListener(new View.OnTouchListener() {
+    private void setToolbarTitle() {
+        getSupportActionBar().setTitle(CURRENT_TAG);
+    }
+
+    private void setUpNavigationView() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawer = (DrawerLayout) findViewById(R.id.activity_main);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navHeader = navigationView.getHeaderView(0);
+        txtCLass = (TextView) navHeader.findViewById(R.id.txt_class);
+        txtCLass.setText(getCurrentClassString());
+        System.out.println("setUpNavigationView");
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
-                    fabButton.onTouchDown();
-                } else if (event.getAction() == MotionEvent.ACTION_UP){
-                    fabButton.onTouchUp();
-                    LoadDBFromDiskTask l = new LoadDBFromDiskTask();
-                    l.execute();
-                    Toast t = Toast.makeText(MainActivity.this, "Start downloading DB...", Toast.LENGTH_SHORT);
-                    t.show();
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                if (menuItem.getItemId() != R.id.nav_choose_class) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.nav_rings:
+                            CURRENT_TAG = TAG_RINGS;
+                            break;
+                        case R.id.nav_news:
+                            CURRENT_TAG = TAG_NEWS;
+                            break;
+                        case R.id.nav_settings:
+                            CURRENT_TAG = TAG_SETTINGS;
+                            break;
+                        case R.id.nav_shedule:
+                            CURRENT_TAG = TAG_SHEDULE;
+                            break;
+                        default:
+                    }
+                    System.out.println("onNavigationItemSelected " + CURRENT_TAG);
+                    loadHomeFragment();
+                    refreshFloatButton();
+                } else {
+                    showDialog(0);
                 }
-                return false;
+                return true;
             }
         });
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, 0, 0) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+        drawer.setDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawers();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private void loadHomeFragment() {
+        setToolbarTitle();
+        if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) != null) {
+            drawer.closeDrawers();
+            refreshFloatButton();
+            return;
+        }
+        Runnable mPendingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // update the main content by replacing fragments
+                Fragment fragment = getHomeFragment();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                        android.R.anim.fade_out);
+                fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
+                fragmentTransaction.commitAllowingStateLoss();
+            }
+        };
+        if (mPendingRunnable != null) {
+            mHandler.post(mPendingRunnable);
+        }
+        refreshFloatButton();
+        drawer.closeDrawers();
+    }
+
+    public void refreshFloatButton() {
+        switch (CURRENT_TAG) {
+            case TAG_CHOOSE_CLASS:
+            case TAG_RINGS:
+            case TAG_SETTINGS:
+                fab.hide();
+                break;
+            case TAG_NEWS:
+                fab.setImageResource(R.mipmap.ic_update_white_36dp);
+                fab.show();
+                break;
+            case TAG_SHEDULE:
+                fab.setImageResource(R.mipmap.ic_save_white_36dp);
+                fab.show();
+                break;
+        }
+    }
+
+    public String getCurrentClassString() {
+        switch (CURRENT_TABLE_NAME) {
+            case DBManager.FITH_A:
+                return "5А";
+            case DBManager.FITH_B:
+                return "5Б";
+            case DBManager.SIXTH_A:
+                return "6А";
+            case DBManager.SIXTH_B:
+                return "6Б";
+            case DBManager.SEVENTH_A:
+                return "7А";
+            case DBManager.SEVENTH_B:
+                return "7Б";
+            case DBManager.EIGHTTH_A:
+                return "8А";
+            case DBManager.EIGHTTH_B:
+                return "8Б";
+            case DBManager.NINE_A:
+                return "9А";
+            case DBManager.NINE_B:
+                return "9Б";
+            case DBManager.TENTH_A:
+                return "10А";
+            case DBManager.ELEVENTH_A:
+                return "11А";
+            default:
+                return "11А";
+        }
+    }
+
+    public void setCurrentClass(String activeTableName) {
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putString(APP_PREFERENCES_CURRENT_CLASS, activeTableName);
+        editor.apply();
+        this.CURRENT_TABLE_NAME = activeTableName;
+    }
+
+    public String getCurrentClassTableName() {
+        if (mSettings.contains(APP_PREFERENCES_CURRENT_CLASS)) {
+            return mSettings.getString(APP_PREFERENCES_CURRENT_CLASS, "");
+        } else
+            return null;
+    }
+
+    public void setCurrentTag(String currentTag) {
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putString(APP_PREFERENCES_CURRENT_TAG, currentTag);
+        editor.apply();
+        this.CURRENT_TAG = currentTag;
+    }
+
+    public String getCurrentTag() {
+        if (mSettings.contains(APP_PREFERENCES_CURRENT_TAG)) {
+            return mSettings.getString(APP_PREFERENCES_CURRENT_TAG, "");
+        } else
+            return null;
     }
 
     public void onLinkButton(View v) {
@@ -177,18 +367,7 @@ public class MainActivity extends Activity {
         startActivity(browserIntent);
     }
 
-    public void onEditorButton(View v) {
-        PutSheduleToDBTask task = new PutSheduleToDBTask();
-        task.execute();
-    }
-
-    public void onClearButton(View v){
-        adapterEdit = new AdapterCustomLessonsEdit(Lesson.getEmptyShedule(), this);
-        lessonsEditListView.setAdapter(adapterEdit);
-        lessonsEditListView.deferNotifyDataSetChanged();
-    }
-
-    public class LoadDBFromDiskTask extends AsyncTask<Void, Void, Void> {
+    public class DownloadDBTask extends AsyncTask<Void, Void, Void> {
 
         ProgressDialog pDialog;
 
@@ -196,7 +375,7 @@ public class MainActivity extends Activity {
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Гружу расписание...");
+            pDialog.setMessage("Гружу расписание классов...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -205,15 +384,15 @@ public class MainActivity extends Activity {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                File file = new File(dbPath, downloadedDBName);
-                URL url = new URL(dbAdress);
+                File file = new File(dbPath, DBManager.LOCAL_DB_NAME);
+                URL url = new URL(DBManager.DB_ADRESS);
                 System.out.println("Start Downloading database...");
                 URLConnection conection = url.openConnection();
                 conection.connect();
                 int lenghtOfFile = 500000;
                 InputStream input = new BufferedInputStream(url.openStream(), lenghtOfFile);
                 OutputStream output = new FileOutputStream(file);
-                System.out.println("File's absolute path : \""+ file.getAbsolutePath() + "\";");
+                System.out.println("File's absolute path : \"" + file.getAbsolutePath() + "\";");
                 byte data[] = new byte[lenghtOfFile];
                 long total = 0;
                 int count = 0;
@@ -234,95 +413,7 @@ public class MainActivity extends Activity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             pDialog.dismiss();
-            System.out.println("DB Downloaded path : \"" + dbPath + "/" + downloadedDBName + "\";");
-        }
-    }
-
-    public class PutSheduleToDBTask extends AsyncTask<String, Void, String> {
-
-        ProgressDialog pDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Сохраняю расписание...");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(false);
-            pDialog.show();
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            try {
-                dbManager.putSheduleToDB(adapterEdit.getLessons());
-                lessonArrayList = dbManager.getAllLessonsFromDB();
-                adapter = new AdapterCustomLessons(lessonArrayList, MainActivity.this);
-                adapterEdit = new AdapterCustomLessonsEdit
-                        (AdapterCustomLessonsEdit.makeSheduleForEditor(lessonArrayList), MainActivity.this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            lessonsListView.setAdapter(adapter);
-            lessonsEditListView.setAdapter(adapterEdit);
-            lessonsListView.deferNotifyDataSetChanged();
-            lessonsEditListView.deferNotifyDataSetChanged();
-            tabHost.setCurrentTab(0);
-            pDialog.dismiss();
-        }
-    }
-
-    public class LoadNewsTask extends AsyncTask<Void, Void, Void> {
-
-        ProgressDialog pDialog;
-        Element mainDiv;
-        Elements days;
-        Elements titles;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Гружу новости...");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(false);
-            pDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                newsArrayList = new ArrayList<>();
-                siteDoc = Jsoup.connect(siteTitle).get();
-                mainDiv = siteDoc.select("div#allnews-on-main").first();
-                titles = mainDiv.getElementsByClass("link");
-                days = mainDiv.getElementsByClass("data");
-                for (int i = 0; i < 6; i++) {
-                    String title = titles.get(i).text().toString();
-                    String day = days.get(i).text().toString();
-                    String link = titles.get(i).attr("href");
-                    News news = new News(title, day, link);
-                    newsArrayList.add(news);
-                    System.out.println(news.toString());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            pDialog.dismiss();
-            adapterNews = new AdapterCustomNews(newsArrayList, MainActivity.this);
-            newsListView.setAdapter(adapterNews);
+            System.out.println("DB Downloaded path : \"" + dbPath + "/" + DBManager.LOCAL_DB_NAME + "\";");
         }
     }
 }

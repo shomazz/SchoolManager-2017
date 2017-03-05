@@ -6,17 +6,17 @@ import java.util.ArrayList;
 
 public class Lesson {
 
-    public static final int EMPTY_CLASS_NUMBER = -1;
+    public static final String EMPTY_CLASS_NUMBER = "-1";
     public static final int LESSONS_IN_DAY = 8;
     public static final String ADD_NEW_LESSON = "ADDNEWLESSS";
     public static final String EMPTY_LESSON = "Добавить урок";
     private int lessonNumber;
-    private int classNumber;
+    private String classNumber;
     private String lessonTitle;
     private String weekDay;
     private String DAY = null;
 
-    public Lesson(int lessonNumber, int classNumber, String lessonTitle, String weekDay) {
+    public Lesson(int lessonNumber, String classNumber, String lessonTitle, String weekDay) {
         this.lessonNumber = lessonNumber;
         this.lessonTitle = lessonTitle;
         this.classNumber = classNumber;
@@ -27,7 +27,7 @@ public class Lesson {
         return lessonTitle;
     }
 
-    public int getClassNumber() {
+    public String getClassNumber() {
         return classNumber;
     }
 
@@ -43,7 +43,7 @@ public class Lesson {
         this.lessonTitle = lessonTitle;
     }
 
-    public void setClassNumber(int classNumber) {
+    public void setClassNumber(String classNumber) {
         this.classNumber = classNumber;
     }
 
@@ -142,9 +142,9 @@ public class Lesson {
         ArrayList<Lesson> lessons = new ArrayList<Lesson>();
         boolean hasNextLesson = true;
         int weekDay = 1;
-        lessons.add(new Lesson(0, 0, "", WeekDays.MONDAY).makeItDay());
+        lessons.add(new Lesson(0, "", "", WeekDays.MONDAY).makeItDay());
         for (int i = 1; hasNextLesson; i++) {
-            Lesson lesson = new Lesson(0, 0, null, null);
+            Lesson lesson = new Lesson(0, null, null, null);
             if (weekDay < 7) {
                 switch (weekDay) {
                     case 1:
