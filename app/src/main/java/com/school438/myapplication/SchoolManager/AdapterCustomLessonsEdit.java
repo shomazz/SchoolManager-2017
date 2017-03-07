@@ -3,7 +3,6 @@ package com.school438.myapplication.SchoolManager;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.school438.myapplication.R;
-import com.school438.myapplication.SchoolManager.Lesson;
 
-import org.w3c.dom.Text;
-
-import java.security.Key;
 import java.util.ArrayList;
 
 public class AdapterCustomLessonsEdit extends BaseAdapter {
@@ -67,7 +62,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
         holder.ref = position;
         if (lessons.get(position).getLessonTitle() != null && !lessons.get(position).isDay()
                 && !lessons.get(position).isAddNewLesson()) {
-            holder.lessonNumber.setText("" + lessons.get(position).getLessonNumber() + " |");
+            holder.lessonNumber.setText("" + lessons.get(position).getLessonNumber());
             if (!lessons.get(position).getLessonTitle().equals(Lesson.EMPTY_LESSON))
                 holder.lesson.setText(lessons.get(position).getLessonTitle().toString(), TextView.BufferType.EDITABLE);
             else
@@ -75,7 +70,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
             if (lessons.get(position).getClassNumber().equals(Lesson.EMPTY_CLASS_NUMBER))
                 holder.classNumber.setText("" + lessons.get(position).getClassNumber(), TextView.BufferType.EDITABLE);
             else
-                holder.classNumber.setHint("Каб.");
+                holder.classNumber.setHint("каб.");
             addTextWatchers(holder);
         } else {
             if (lessons.get(position).isDay())
@@ -87,6 +82,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
     }
 
     private void addTextWatchers(final Holder holder){
+        System.out.println();
         holder.lesson.addTextChangedListener(new TextWatcher() {
 
             String word;
@@ -196,7 +192,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
     public View getInflatedView(int position) {
         if (!lessons.get(position).isAddNewLesson()) {
             if (!lessons.get(position).isDay()) {
-                return inflater.inflate(R.layout.list_item_lesson_edit, null);
+                return inflater.inflate(R.layout.list_item_lesson, null);
             } else {
                 return inflater.inflate(R.layout.list_item_day, null);
             }

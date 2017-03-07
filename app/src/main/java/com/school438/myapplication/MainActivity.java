@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.school438.myapplication.Fragments.NewsFragment;
 import com.school438.myapplication.Fragments.RingsFragment;
@@ -77,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         dbPath = "/data/data/" + getPackageName() + "/databases/";
         dbManager = DBManager.getInstance(this);
-        dbManager.copyDBFromAssets(this);
-        if (dbManager.getAllLessonsFromLocalDB(CURRENT_TABLE_NAME) == null)
+        if (!new File("/data/data/" + getPackageName() + "/databases/" + DBManager.LOCAL_DB_NAME).exists())
             dbManager.copyDBFromAssets(this);
         mHandler = new Handler();
         setUpFloatButton();
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        final String[] classArr ={"5А", "5Б", "6А", "6Б", "7А", "7Б", "8А", "8Б"
+        final String[] classArr = {"5А", "5Б", "6А", "6Б", "7А", "7Б", "8А", "8Б"
                 , "9А", "9Б", "10А", "11А"};
 
         builder = new AlertDialog.Builder(this);
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setItems(classArr, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                switch (item){
+                switch (item) {
                     case 0:
                         CURRENT_TABLE_NAME = DBManager.FITH_A;
                         break;
@@ -152,14 +152,9 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switch (CURRENT_TAG) {
-                    case TAG_NEWS:
-                        newsFragment.loadNews();
-                        break;
-                    case TAG_SHEDULE:
-                        sheduleFragment.saveShedule();
-                        break;
-                }
+                //sheduleFragment.saveShedule();
+                DownloadDBTask d = new DownloadDBTask();
+                d.execute();
             }
         });
     }
@@ -290,14 +285,10 @@ public class MainActivity extends AppCompatActivity {
             case TAG_CHOOSE_CLASS:
             case TAG_RINGS:
             case TAG_SETTINGS:
+            case TAG_NEWS:
                 fab.hide();
                 break;
-            case TAG_NEWS:
-                fab.setImageResource(R.mipmap.ic_update_white_36dp);
-                fab.show();
-                break;
             case TAG_SHEDULE:
-                fab.setImageResource(R.mipmap.ic_save_white_36dp);
                 fab.show();
                 break;
         }
@@ -385,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             try {
                 File file = new File(dbPath, DBManager.LOCAL_DB_NAME);
-                URL url = new URL(DBManager.DB_ADRESS);
+                URL url = new URL(DBManager.DB_ADRESS + "/" + DBManager.LOCAL_DB_NAME);
                 System.out.println("Start Downloading database...");
                 URLConnection conection = url.openConnection();
                 conection.connect();
@@ -413,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             pDialog.dismiss();
-            System.out.println("DB Downloaded path : \"" + dbPath + "/" + DBManager.LOCAL_DB_NAME + "\";");
+            System.out.println("DB Downloaded path : \"" + dbPath + DBManager.LOCAL_DB_NAME + "\";");
         }
     }
 }

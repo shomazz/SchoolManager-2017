@@ -18,8 +18,9 @@ import java.util.ArrayList;
 
 public class DBManager extends SQLiteOpenHelper {
 
-    public static final String DB_ADRESS = "http://cloud.w3bs.ru/download/allShedules.db";
+    public static final String DB_ADRESS = "http://w3bdrop.ru/";
     public static final String LOCAL_DB_NAME = "data.db";
+    public static final String RINGS_TABLE_NAME = "RINGS";
     public static DBManager dbManager;
     public static int version = 1;
     private SQLiteDatabase localDatabase;
@@ -64,26 +65,23 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     public static void copyDBFromAssets(Context context) {
-        if (//!new File("/data/data/" + context.getPackageName() + "/databases/" + LOCAL_DB_NAME).exists()){
-                true) {
-            try {
-                String destPath = "/data/data/" + context.getPackageName() + "/databases/" + LOCAL_DB_NAME;
-                File f = new File(destPath);
-                InputStream in = context.getAssets().open(LOCAL_DB_NAME);
-                OutputStream out = new FileOutputStream(f);
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, length);
-                }
-                in.close();
-                out.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                Log.v("TAG", "ioexeption");
-                e.printStackTrace();
+        try {
+            String destPath = "/data/data/" + context.getPackageName() + "/databases/" + LOCAL_DB_NAME;
+            File f = new File(destPath);
+            InputStream in = context.getAssets().open(LOCAL_DB_NAME);
+            OutputStream out = new FileOutputStream(f);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
             }
+            in.close();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.v("TAG", "ioexeption");
+            e.printStackTrace();
         }
         System.out.println("COPIED!!!");
     }
@@ -115,19 +113,38 @@ public class DBManager extends SQLiteOpenHelper {
         return lessons;
     }
 
-    public void clearTable(String tableName){
-        try{
+    public void clearTable(String tableName) {
+        try {
             System.out.println("Clearing table " + tableName + "...");
             localDatabase.execSQL("DELETE FROM " + tableName);
             System.out.println(tableName + " cleared!");
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public ArrayList<Ring> getAllRings() {
+        ArrayList<Ring> rings = new ArrayList<>();
+        try {
+            Cursor cursor = localDatabase.query(RINGS_TABLE_NAME, null, null, null, null, null, null);
+            boolean hasMoreData = cursor.moveToFirst();
+            while (hasMoreData) {
+                int ringNumber = cursor.getInt(cursor.getColumnIndex("NUMBER"));
+                String ringsTime = cursor.getString(cursor.getColumnIndex("TIME"));
+                Ring ring = new Ring(ringNumber, ringsTime);
+                rings.add(ring);
+                hasMoreData = cursor.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            rings = null;
+        }
+        return rings;
+    }
+
     public void putSheduleToDB(ArrayList<Lesson> lessons, String tableName) {
         clearTable(tableName);
-        for (int i = 0; i<lessons.size(); i++){
+        for (int i = 0; i < lessons.size(); i++) {
             System.out.println(lessons.get(i).toString());
         }
         System.out.println("Putting lessons to db...");
@@ -138,14 +155,14 @@ public class DBManager extends SQLiteOpenHelper {
                 String lesson = lessons.get(i).getLessonTitle();
                 String weekDay = lessons.get(i).getWeekDay();
                 if (lessons.get(i).getLessonNumber() != 9)
-                localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
-                        + " , '" + lesson + "', " + numberOfClass + ", '" + weekDay + "');");
+                    localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
+                            + " , '" + lesson + "', " + numberOfClass + ", '" + weekDay + "');");
                 System.out.println("Put to db lesson (" + numberOfLesson + ", "
-                            + lesson + ", " + numberOfClass + ", " + weekDay + ").");
+                        + lesson + ", " + numberOfClass + ", " + weekDay + ").");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Shedule putted to "+ tableName +"!");
+        System.out.println("Shedule putted to " + tableName + "!");
     }
 }

@@ -4,9 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.school438.myapplication.Fragments.SheduleFragment">
 
-
     <LinearLayout
-        android:id="@+id/tab_layout_shedule"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">

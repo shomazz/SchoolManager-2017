@@ -16,9 +16,7 @@ import com.school438.myapplication.SchoolManager.AdapterCustomLessonsEdit;
 import com.school438.myapplication.SchoolManager.DBManager;
 import com.school438.myapplication.SchoolManager.Lesson;
 
-import java.io.PushbackReader;
 import java.util.ArrayList;
-import java.util.concurrent.Exchanger;
 
 public class SheduleFragment extends Fragment {
 
@@ -44,8 +42,6 @@ public class SheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_shedule, container, false);
         context = v.getContext();
-        View footerView = ((LayoutInflater) v.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.list_item_button, null, false);
         lessonsListView = (ListView) v.findViewById(R.id.list_view_lessons);
         dbManager = DBManager.getInstance(v.getContext());
         lessonsArray = dbManager.getAllLessonsFromLocalDB(MainActivity.CURRENT_TABLE_NAME);
@@ -58,7 +54,6 @@ public class SheduleFragment extends Fragment {
             System.out.println("SHEDULE FROM DB USED");
         }
         lessonsListView.setAdapter(adapterLessons);
-        lessonsListView.addFooterView(footerView);
         return v;
     }
 

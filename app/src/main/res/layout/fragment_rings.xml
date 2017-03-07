@@ -4,8 +4,18 @@
     android:layout_height="match_parent"
     tools:context="com.school438.myapplication.Fragments.RingsFragment">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/list_view_rings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </ListView>
+
+    </LinearLayout>
 
 </FrameLayout>

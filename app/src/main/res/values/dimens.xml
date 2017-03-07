@@ -2,12 +2,25 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="title_margin">10dp</dimen>
+    <dimen name="title_margin">13dp</dimen>
     <dimen name="class_width">125dp</dimen>
     <dimen name="class_height">125dp</dimen>
     <dimen name="class_vertical_spacing">50dp</dimen>
     <dimen name="class_horisontal_spacing">75dp</dimen>
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">200dp</dimen>
+    <dimen name="item_text_size">25sp</dimen>
+    <dimen name="item_add_lesson_text_size">22sp</dimen>
+
+    <dimen name="telegram">50dp</dimen>
+
+    <dimen name="shadow_feed">35dp</dimen>
+    <dimen name="feed_item_margin_top">15dp</dimen>
+    <dimen name="feed_item_padding">17dp</dimen>
+    <dimen name="feed_item_padding_top">6dp</dimen>
+    <dimen name="feed_item_data_text_size">16sp</dimen>
+    <dimen name="feed_item_title_text_size">18sp</dimen>
+
+    <dimen name="drawer_padding_left">30dp</dimen>
 
 </resources>

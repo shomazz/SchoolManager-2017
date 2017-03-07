@@ -1,47 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ffcccccc">
+    android:layout_height="fill_parent"
+    android:background="@color/feed_bg"
+    android:orientation="vertical">
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.6"
-        android:background="#00000000"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:text="Ссылка"
-        android:textSize="26sp"
-        android:gravity="center_vertical|right"
-        android:textStyle="bold|italic"
-        android:background="#ff006677"
-        android:textColor="#ffdddddd"
-        android:layout_weight="2.5"
-        android:id="@+id/news_day" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="@dimen/feed_item_margin_top"
+            android:background="@color/feed_item_bg"
+            android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"/>
+            <TextView
+                android:id="@+id/news_title"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="10"
+                android:background="#00000000"
+                android:gravity="center_vertical"
+                android:padding="@dimen/feed_item_padding"
+                android:text="Lalalalalala"
+                android:textColor="#FF000000"
+                android:textSize="@dimen/feed_item_title_text_size" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10"
-        android:text="Lalalalalala ds hdj dsj jcsacj"
-        android:gravity="center"
-        android:textSize="28sp"
-        android:id="@+id/news_title"
-        android:background="#ff0099aa"
-        android:textColor="#FFeeeeee"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFB03C99"
+                android:orientation="horizontal">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"/>
+                <TextView
+                    android:id="@+id/news_day"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:gravity="center_vertical|left"
+                    android:paddingBottom="@dimen/feed_item_padding_top"
+                    android:paddingLeft="@dimen/feed_item_padding"
+                    android:paddingTop="@dimen/feed_item_padding_top"
+                    android:text="7 ФЕВРАЛЯ"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="@dimen/feed_item_data_text_size" />
+
+                <TextView
+                    android:id="@+id/news_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#00000000"
+                    android:gravity="center_vertical|right"
+                    android:paddingBottom="@dimen/feed_item_padding_top"
+                    android:paddingRight="@dimen/feed_item_padding"
+                    android:paddingTop="@dimen/feed_item_padding_top"
+                    android:text="ЧИТАТЬ"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="@dimen/feed_item_data_text_size" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="@dimen/feed_item_margin_top"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="6"
+                android:background="#00000000" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/shadow_feed"
+                android:layout_weight="1"
+                android:scaleType="fitXY"
+                android:src="@mipmap/telegram_rect" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

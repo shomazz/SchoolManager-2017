@@ -12,24 +12,21 @@ import com.school438.myapplication.SchoolManager.Lesson;
 
 import java.util.ArrayList;
 
-public class AdapterCustomRings extends BaseAdapter{
+public class AdapterCustomRings extends BaseAdapter {
 
-    private ArrayList <Lesson> lessons;
+    private ArrayList<Ring> rings;
     private LayoutInflater inflater;
     private Context context;
 
-    public AdapterCustomRings(ArrayList <Lesson> lessons, Context context){
-        this.lessons = lessons;
+    public AdapterCustomRings(ArrayList<Ring> rings, Context context) {
+        this.rings = rings;
         this.context = context;
-        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        for(int i=0; i<lessons.size(); i++) {
-            System.out.println("SHEDULE" + lessons.get(i).toString());
-        }
+        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount() {
-        return lessons.size();
+        return rings.size();
     }
 
     @Override
@@ -45,31 +42,18 @@ public class AdapterCustomRings extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Holder holder = new Holder();
-        View view;
-        if (!lessons.get(position).isDay()) {
-            view = inflater.inflate(R.layout.list_item_lesson, null);
-        } else {
-            view = inflater.inflate(R.layout.list_item_day, null);
-        }
-        holder.weekDay = (TextView)view.findViewById(R.id.week_day);
-        holder.lessonNumber = (TextView)view.findViewById(R.id.lesson_number_text_view);
-        holder.lesson = (TextView)view.findViewById(R.id.lesson_text_view);
-        holder.classNumber = (TextView)view.findViewById(R.id.class_number_text_view);
-        if(lessons.get(position).getLessonTitle() != null && !lessons.get(position).isDay()){
-            holder.lessonNumber.setText(""+lessons.get(position).getLessonNumber()+" |");
-            holder.lesson.setText(lessons.get(position).getLessonTitle());
-            holder.classNumber.setText(""+lessons.get(position).getClassNumber());
-        } else if (lessons.get(position).isDay()){
-            holder.weekDay.setText(lessons.get(position).getWeekDay());
-        }
+        View view = inflater.inflate(R.layout.list_item_rings, null);
+        holder.ringNumber = (TextView) view.findViewById(R.id.rings_number);
+        holder.ringTxt = (TextView) view.findViewById(R.id.rings_time);
+        System.out.println(rings.get(position).getNumber() + "  " + rings.get(position).getTime());
+        holder.ringNumber.setText(rings.get(position).getNumber());
+        holder.ringTxt.setText(rings.get(position).getTime());
         return view;
     }
 
-    public  class Holder {
-        TextView lessonNumber;
-        TextView lesson;
-        TextView classNumber;
-        TextView weekDay;
+    public class Holder {
+        TextView ringNumber;
+        TextView ringTxt;
     }
 
 }

@@ -1,11 +1,13 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.school438.myapplication.Fragments.NewsFragment">
+    tools:context="com.school438.myapplication.Fragments.NewsFragment"
+    android:background="@color/feed_bg"
+    android:id="@+id/swipe_refresh">
 
     <LinearLayout
-        android:id="@+id/tab_layout_news"
+        android:id="@+id/layout_news"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -19,4 +21,4 @@
 
     </LinearLayout>
 
-</FrameLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

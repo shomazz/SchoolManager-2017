@@ -5,15 +5,22 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.school438.myapplication.R;
+import com.school438.myapplication.SchoolManager.AdapterCustomRings;
+import com.school438.myapplication.SchoolManager.DBManager;
+import com.school438.myapplication.SchoolManager.Ring;
+
+import java.util.ArrayList;
 
 public class RingsFragment extends Fragment {
 
-
-    public RingsFragment() {
-        // Required empty public constructor
-    }
+    private ListView ringsListView;
+    private View v;
+    private ArrayList<Ring> ringsArr;
+    private AdapterCustomRings adapterRings;
+    private DBManager dbManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,8 +31,12 @@ public class RingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_rings, container, false);
+        v = inflater.inflate(R.layout.fragment_rings, container, false);
+        dbManager = DBManager.getInstance(v.getContext());
+        ringsListView = (ListView) v.findViewById(R.id.list_view_rings);
+        ringsArr = dbManager.getAllRings();
+        adapterRings = new AdapterCustomRings(ringsArr, v.getContext());
+        ringsListView.setAdapter(adapterRings);
+        return v;
     }
-
 }

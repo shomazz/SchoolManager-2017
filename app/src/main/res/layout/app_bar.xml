@@ -16,14 +16,14 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#FF802C89">
+            android:background="#FFA02C89">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@mipmap/app_title"
                 android:layout_margin="@dimen/title_margin"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center_vertical|right"/>
 
         </android.support.v7.widget.Toolbar>
 
@@ -42,6 +42,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:backgroundTint="#FFB03C99"
-        android:src="@mipmap/ic_save_white_36dp"/>
+        android:src="@mipmap/save_shedule"/>
 
 </android.support.design.widget.CoordinatorLayout>

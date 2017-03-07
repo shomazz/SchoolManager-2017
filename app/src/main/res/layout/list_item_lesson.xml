@@ -2,47 +2,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#fff9f9f9">
 
     <TextView
         android:id="@+id/lesson_number_text_view"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3"
-        android:text="1 |"
-        android:textSize="30sp"
+        android:text="1 "
+        android:textSize="@dimen/item_text_size"
         android:gravity="center"
-        android:textColor="#FFFFFFFF"
-        android:background="#FF004555"/>
+        android:textColor="#FFa02c89"/>
 
     <View
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:background="#FF0099aa"/>
+        android:background="#00000000"/>
 
-    <TextView
-        android:id="@+id/lesson_text_view"
+    <EditText
+        android:id="@+id/lesson_edit_text"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="17"
-        android:text="Нет урока"
-        android:textSize="30sp"
+        android:textSize="@dimen/item_text_size"
         android:gravity="center_vertical"
-        android:background="#FF0099aa"
-        android:textColor="#ffcccccc"
-        android:textStyle="bold"/>
+        android:textColor="#FF000000"
+        android:background="#00000000"/>
 
-    <TextView
-        android:id="@+id/class_number_text_view"
+    <EditText
+        android:id="@+id/class_number_edit_text"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="4"
-        android:text="228"
-        android:textSize="30sp"
+        android:textSize="@dimen/item_text_size"
         android:gravity="center"
         android:textStyle="italic"
-        android:background="#FF008899"
-        android:textColor="#ffd6d6d6"/>
+        android:textColor="#FFa02c89"
+        android:background="#00000000"
+        android:textColorHint="#ff626262"/>
 
 </LinearLayout>
