@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,47 +50,103 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final Holder holder = new Holder();
-        //initialisateViews(position, holder, convertView);
         convertView = getInflatedView(position);
-        if(lessons.get(position).isDay())
-            holder.weekDay = (TextView) convertView.findViewById(R.id.week_day);
-        else {
-            holder.lessonNumber = (TextView) convertView.findViewById(R.id.lesson_number_text_view);
-            holder.lesson = (EditText) convertView.findViewById(R.id.lesson_edit_text);
-            holder.classNumber = (EditText) convertView.findViewById(R.id.class_number_edit_text);
-        } if (lessons.get(position).isAddNewLesson())
-            holder.addLesson = (EditText) convertView.findViewById(R.id.add_lesson_edittext);
-        convertView.setTag(holder);
-        holder.ref = position;
-        if (lessons.get(position).getLessonTitle() != null && !lessons.get(position).isDay()
-                && !lessons.get(position).isAddNewLesson()) {
-            holder.lessonNumber.setText("" + lessons.get(position).getLessonNumber());
-            if (!lessons.get(position).getLessonTitle().equals(Lesson.EMPTY_LESSON))
-                holder.lesson.setText(lessons.get(position).getLessonTitle().toString(), TextView.BufferType.EDITABLE);
-            else
+        if (!lessons.get(position).isView()) {
+            if (!lessons.get(position).isAddNewLesson()) {
+                if (!lessons.get(position).isDay()) {
+                    holder.lessonNumber = (TextView) convertView.findViewById(R.id.lesson_number_text_view);
+                    holder.lesson = (EditText) convertView.findViewById(R.id.lesson_edit_text);
+                    holder.classNumber = (EditText) convertView.findViewById(R.id.class_number_edit_text);
+                    convertView.setTag(holder);
+                    holder.ref = position;
+                    if (lessons.get(position).getLessonTitle() != null) {
+                        holder.lessonNumber.setText("" + lessons.get(position).getLessonNumber());
+                        if (!lessons.get(position).isEmpty()) {
+                            holder.classNumber.setText("" + lessons.get(position).getClassNumber(), TextView.BufferType.EDITABLE);
+                            holder.lesson.setText(lessons.get(position).getLessonTitle().toString(), TextView.BufferType.EDITABLE);
+                        } else {
+                            holder.lesson.setHint(Lesson.EMPTY_LESSON);
+                            holder.classNumber.setHint("каб.");
+                        }
+                        addTextWatchersToLessonsET(holder);
+                    }
+                } else {
+                    holder.weekDay = (TextView) convertView.findViewById(R.id.week_day);
+                    holder.weekDay.setText(lessons.get(position).getWeekDay());
+                }
+            } else {
+                holder.lessonNumberEdit = (EditText) convertView.findViewById(R.id.add_lesson_number_edittext);
+                holder.lessonNumberEdit.setVisibility(View.GONE);
+                holder.lesson = (EditText) convertView.findViewById(R.id.add_lesson_edittext);
                 holder.lesson.setHint(Lesson.EMPTY_LESSON);
-            if (lessons.get(position).getClassNumber().equals(Lesson.EMPTY_CLASS_NUMBER))
-                holder.classNumber.setText("" + lessons.get(position).getClassNumber(), TextView.BufferType.EDITABLE);
-            else
-                holder.classNumber.setHint("каб.");
-            addTextWatchers(holder);
-        } else {
-            if (lessons.get(position).isDay())
-                holder.weekDay.setText(lessons.get(position).getWeekDay());
-            else if (lessons.get(position).isAddNewLesson())
-                holder.addLesson.setHint(Lesson.EMPTY_LESSON);
+                holder.classNumber = (EditText) convertView.findViewById(R.id.add_lesson_room_edittext);
+                holder.button = (ImageButton) convertView.findViewById(R.id.add_lesson_button);
+                addTextWatcherToAddLessonsET(holder);
+                setCLickListennerToAddLesson(holder, position);
+            }
         }
         return convertView;
     }
 
-    private void addTextWatchers(final Holder holder){
-        System.out.println();
+    private void setCLickListennerToAddLesson(final Holder holder, final int position) {
+        holder.button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                try{
+                    int lessonNumber = Integer.parseInt(holder.lessonNumberEdit.getText().toString());
+                    String title = holder.lesson.getText().toString();
+                    String classNumber = holder.classNumber.getText().toString();
+                    String weekDay = lessons.get(position).getWeekDay().toString();
+                    Lesson lesson = new Lesson(lessonNumber, classNumber, title, weekDay);
+                    addLessonToArray(lesson, weekDay, lessonNumber);
+                    notifyDataSetChanged();
+                } catch (Exception e){
+                    Toast t = Toast.makeText(context, "Введите номер класса и название урока", Toast.LENGTH_SHORT);
+                    t.show();
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void addLessonToArray(Lesson lesson, String weekDay, int lessonNumber) {
+        boolean founded = false;
+        int position = 0;
+        for (int i = 0; !founded; i++) {
+            if (lessons.get(i).getWeekDay() != null && lessons.get(i).getWeekDay().equals(weekDay)) {
+                position = i;
+                founded = true;
+            }
+        }
+        this.lessons.add(position + lessonNumber, lesson);
+        founded = false;
+        for (int k = 1 + position + lessonNumber; !founded; k++){
+            if(!lessons.get(k).isAddNewLesson())
+                lessons.get(k).incLessonNumber();
+            else founded = true;
+        }
+    }
+
+    private void addTextWatcherToAddLessonsET(final Holder holder) {
         holder.lesson.addTextChangedListener(new TextWatcher() {
 
             String word;
 
             @Override
             public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                if (holder.lesson.getText().toString().equals("")) {
+                    holder.lesson.setHint(Lesson.EMPTY_LESSON);
+                } else if (arg0.toString().length() > arg1) {
+                    char c = holder.lesson.getText().toString().charAt(arg1);
+                    System.out.println("" + c + "    " + arg0 + "   " + (int) c + "");
+                    if (c == 0 || c == 10) {
+                        holder.lesson.clearFocus();
+                        holder.lesson.setText(word);
+                    }
+                    holder.lessonNumberEdit.setVisibility(View.VISIBLE);
+                    holder.classNumber.setHint("Каб.");
+                }
             }
 
             @Override
@@ -98,10 +156,12 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
 
             @Override
             public void afterTextChanged(Editable arg0) {
-                //   if (holder.lesson.getText().toString().charAt(holder.lesson.getText().toString().length()-1) == )
-                if (holder.lesson.getText().toString().equals(""))
+                if (holder.lesson.getText().toString().equals("")) {
                     holder.lesson.setHint(Lesson.EMPTY_LESSON);
-                lessons.get(holder.ref).setLessonTitle(holder.lesson.getText().toString());
+                    holder.classNumber.setHint("");
+                    holder.lessonNumberEdit.setVisibility(View.GONE);
+                }
+
             }
         });
         holder.classNumber.addTextChangedListener(new TextWatcher() {
@@ -110,6 +170,23 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
 
             @Override
             public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                if (holder.classNumber.getText().toString().equals("")) {
+                    lessons.get(holder.ref).setClassNumber(Lesson.EMPTY_CLASS_NUMBER);
+                    holder.classNumber.setHint("");
+                } else if (arg0.toString().length() > arg1) {
+                    char c = holder.classNumber.getText().toString().charAt(arg1);
+                    System.out.println("" + c + "    " + arg0 + "   " + (int) c + "");
+                    if (c == 10) {
+                        holder.classNumber.clearFocus();
+                        holder.classNumber.setText(word);
+                    } else if (c >= 48 && c <= 57) {
+
+                    } else {
+                        Toast t = Toast.makeText(context, "Введите номер кабинета", Toast.LENGTH_SHORT);
+                        t.show();
+                        holder.classNumber.setText(word);
+                    }
+                }
             }
 
             @Override
@@ -119,87 +196,155 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
 
             @Override
             public void afterTextChanged(Editable arg0) {
-                try {
-                    if (holder.classNumber.getText().toString().equals("")) {
-                        lessons.get(holder.ref).setClassNumber(Lesson.EMPTY_CLASS_NUMBER);
-                        holder.classNumber.setHint("Каб.");
-                    } else {
-                        lessons.get(holder.ref).setClassNumber(arg0.toString());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(context, "Введите номер кабинета!", Toast.LENGTH_SHORT).show();
-                    System.out.println(word);
-                    holder.classNumber.setText(word);
+                if (holder.classNumber.getText().toString().equals("")) {
+                    lessons.get(holder.ref).setClassNumber(Lesson.EMPTY_CLASS_NUMBER);
+                    holder.classNumber.setHint("");
                 }
+            }
+        });
+        holder.lessonNumberEdit.addTextChangedListener(new TextWatcher() {
+            String word;
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                if (holder.lessonNumberEdit.getText().toString().equals("")) {
+                    holder.lessonNumberEdit.setHint("№");
+                } else if (arg0.toString().length() > arg1) {
+                    char c = holder.lesson.getText().toString().charAt(arg1);
+                    System.out.println("" + c + "    " + arg0 + "   " + (int) c + "");
+                    if (c == 0 || c == 10) {
+                        holder.lessonNumberEdit.clearFocus();
+                        holder.lessonNumberEdit.setText(word);
+                    } else if ((arg0.toString().length() > 1) || !(c >= 48 && c <= 57)){
+                        Toast t = Toast.makeText(context, "Введите номер урока", Toast.LENGTH_SHORT);
+                        t.show();
+                       // holder.lessonNumberEdit.setText(word);
+                    }
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                word = holder.lesson.getText().toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                if (holder.lessonNumberEdit.getText().toString().equals(""))
+                    holder.lessonNumberEdit.setHint("№");
             }
         });
     }
 
-    public static ArrayList<Lesson> makeSheduleForEditor(ArrayList<Lesson> dbArr) {
-        ArrayList<Lesson> mainArr = Lesson.getEmptyShedule();
-        try {
-            int mainArrIndex = 1;
-            int dbArrIndex = 1;
-            System.out.println("mainArr Size == " + mainArr.size() + " ; dbArr Size == " + dbArr.size() + " ;");
-            for (; dbArrIndex < dbArr.size(); ) {
-                if (dbArr.get(dbArrIndex).getLessonTitle() != Lesson.EMPTY_LESSON &&
-                        !dbArr.get(dbArrIndex).isDay()) {
-                    mainArr.get(mainArrIndex).changeLesson(dbArr.get(dbArrIndex));
-                    dbArrIndex++;
-                    mainArrIndex++;
-                } else if (dbArr.get(dbArrIndex).isDay()) {
-                    mainArrIndex += Lesson.LESSONS_IN_DAY - dbArr.get(dbArrIndex - 1).getLessonNumber();
-                    mainArrIndex++;
-                    dbArrIndex++;
-                    System.out.println("mainArrindex == " + mainArrIndex + " ; dbArrIndex == " + dbArrIndex + " ;");
+    private void addTextWatchersToLessonsET(final Holder holder) {
+
+        holder.lesson.addTextChangedListener(new TextWatcher() {
+
+            String word;
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                if (holder.lesson.getText().toString().equals("")) {
+                    holder.lesson.setHint(Lesson.EMPTY_LESSON);
+                } else if (arg0.toString().length() > arg1) {
+                    char c = holder.lesson.getText().toString().charAt(arg1);
+                    System.out.println("" + c + "    " + arg0 + "   " + (int) c + "");
+                    if (c == 0 || c == 10) {
+                        holder.lesson.clearFocus();
+                        holder.lesson.setText(word);
+                    } else {
+                        lessons.get(holder.ref).setLessonTitle(arg0.toString());
+                    }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return mainArr;
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                word = holder.lesson.getText().toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                if (holder.lesson.getText().toString().equals(""))
+                    holder.lesson.setHint(Lesson.EMPTY_LESSON);
+            }
+        });
+        holder.classNumber.addTextChangedListener(new TextWatcher() {
+
+            String word;
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                if (holder.classNumber.getText().toString().equals("")) {
+                    lessons.get(holder.ref).setClassNumber(Lesson.EMPTY_CLASS_NUMBER);
+                    holder.classNumber.setHint("Каб.");
+                } else if (arg0.toString().length() > arg1) {
+                    char c = holder.classNumber.getText().toString().charAt(arg1);
+                    System.out.println("" + c + "    " + arg0 + "   " + (int) c + "");
+                    if (c == 10) {
+                        holder.classNumber.clearFocus();
+                        holder.classNumber.setText(word);
+                    } else if (c >= 48 && c <= 57) {
+                        lessons.get(holder.ref).setLessonTitle(arg0.toString());
+                    } else {
+                        Toast t = Toast.makeText(context, "Введите номер кабинета", Toast.LENGTH_SHORT);
+                        t.show();
+                        holder.classNumber.setText(word);
+                    }
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                word = holder.classNumber.getText().toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                if (holder.classNumber.getText().toString().equals(""))
+                    holder.classNumber.setHint("Каб.");
+            }
+        });
     }
 
-    public static ArrayList<Lesson> makeSheduleForMainListView(ArrayList<Lesson> dbArr){
+
+    public static ArrayList<Lesson> makeSheduleForMainListView(ArrayList<Lesson> dbArr) {
         System.out.println("FROM makeSheduleForMainListView()");
         ArrayList<Lesson> mainArr = new ArrayList<Lesson>();
-        for(int i = 0; i < dbArr.size(); i++){
+        for (int i = 0; i < dbArr.size(); i++) {
             mainArr.add(dbArr.get(i));
-            if((i != dbArr.size() - 1 && !dbArr.get(i).isDay() && dbArr.get(i+1).isDay()) || i == dbArr.size()-1)
+            if ((i != dbArr.size() - 1 && !dbArr.get(i).isDay() && dbArr.get(i + 1).isDay()) || i == dbArr.size() - 1) {
                 mainArr.add(new Lesson(0, "0", Lesson.ADD_NEW_LESSON, dbArr.get(i).getWeekDay()));
+                mainArr.add(new Lesson(-2, "0", null, null).makeItView());
+            }
         }
         return mainArr;
     }
 
-    public ArrayList<Lesson> getLessons() {
+    public ArrayList<Lesson> getLessonsForDB() {
         ArrayList<Lesson> lessons = new ArrayList<>();
-        System.out.println("From get Lessons: ");
-        for (int i = 1; i < this.lessons.size(); i++) {
-            System.out.println(this.lessons.get(i).toString());
-            if (this.lessons.get(i).isDay()) {
-                System.out.println("it is day!");
-                if (!(this.lessons.get(i + 1).isEmpty() && !this.lessons.get(i + 2).isEmpty()))
-                    lessons.add(this.lessons.get(i));
-            } else if (!this.lessons.get(i).isEmpty()) {
+        for (int i = 0; i < this.lessons.size(); i++) {
+            if (!(this.lessons.get(i).isDay() || this.lessons.get(i).isEmpty()
+                    || this.lessons.get(i).isAddNewLesson() || this.lessons.get(i).isView())) {
                 lessons.add(this.lessons.get(i));
-                System.out.println("its not empty and not day");
+                System.out.println(this.lessons.get(i).toString());
             }
         }
         return lessons;
     }
 
     public View getInflatedView(int position) {
-        if (!lessons.get(position).isAddNewLesson()) {
-            if (!lessons.get(position).isDay()) {
-                return inflater.inflate(R.layout.list_item_lesson, null);
+        if (!lessons.get(position).isView()) {
+            if (!lessons.get(position).isAddNewLesson()) {
+                if (!lessons.get(position).isDay()) {
+                    return inflater.inflate(R.layout.list_item_lesson, null);
+                } else {
+                    return inflater.inflate(R.layout.list_item_day, null);
+                }
             } else {
-                return inflater.inflate(R.layout.list_item_day, null);
+                return inflater.inflate(R.layout.list_item_add_lesson, null);
             }
-        } else {
-            System.out.println(lessons.get(position).toString() + "     Lesson is addnewleson!");
-            return inflater.inflate(R.layout.list_item_add_lesson, null);
-        }
+        } else
+            return inflater.inflate(R.layout.view_after_add_lesson, null);
     }
 
     public class Holder {
@@ -207,8 +352,9 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
         EditText lesson;
         EditText classNumber;
         TextView weekDay;
-        EditText addLesson;
         int ref;
+        ImageButton button;
+        EditText lessonNumberEdit;
     }
 
 }

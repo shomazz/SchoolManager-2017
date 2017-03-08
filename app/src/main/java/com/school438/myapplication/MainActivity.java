@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String APP_PREFERENCES = "mysettings";
     public static String dbPath;
     public static String CURRENT_TABLE_NAME = DBManager.ELEVENTH_A;
-    public static String CURRENT_TAG = TAG_NEWS;
+    public static String CURRENT_TAG = TAG_SHEDULE;
     private Toolbar toolbar;
     private DBManager dbManager;
     private SharedPreferences mSettings;
@@ -152,9 +152,9 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sheduleFragment.saveShedule();
-                DownloadDBTask d = new DownloadDBTask();
-                d.execute();
+                sheduleFragment.saveShedule();
+                /*DownloadDBTask d = new DownloadDBTask();
+                d.execute();*/
             }
         });
     }

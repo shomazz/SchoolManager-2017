@@ -14,13 +14,16 @@
 
     <dimen name="telegram">50dp</dimen>
 
+    <dimen name="drawer_padding_left">30dp</dimen>
+    
+    <dimen name="shedule_day_text_size">17dp</dimen>
+    <dimen name="shedule_after_addlesson_view">13dp</dimen>
+
     <dimen name="shadow_feed">35dp</dimen>
     <dimen name="feed_item_margin_top">15dp</dimen>
     <dimen name="feed_item_padding">17dp</dimen>
     <dimen name="feed_item_padding_top">6dp</dimen>
     <dimen name="feed_item_data_text_size">16sp</dimen>
     <dimen name="feed_item_title_text_size">18sp</dimen>
-
-    <dimen name="drawer_padding_left">30dp</dimen>
 
 </resources>

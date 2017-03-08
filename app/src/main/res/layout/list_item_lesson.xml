@@ -12,14 +12,9 @@
         android:layout_weight="3"
         android:text="1 "
         android:textSize="@dimen/item_text_size"
-        android:gravity="center"
+        android:gravity="center_vertical|left"
+        android:paddingLeft="10dp"
         android:textColor="#FFa02c89"/>
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="#00000000"/>
 
     <EditText
         android:id="@+id/lesson_edit_text"
@@ -27,7 +22,7 @@
         android:layout_height="match_parent"
         android:layout_weight="17"
         android:textSize="@dimen/item_text_size"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|left"
         android:textColor="#FF000000"
         android:background="#00000000"/>
 
@@ -37,7 +32,7 @@
         android:layout_height="match_parent"
         android:layout_weight="4"
         android:textSize="@dimen/item_text_size"
-        android:gravity="center"
+        android:gravity="center_vertical|left"
         android:textStyle="italic"
         android:textColor="#FFa02c89"
         android:background="#00000000"

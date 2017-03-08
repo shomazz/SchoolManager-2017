@@ -144,9 +144,6 @@ public class DBManager extends SQLiteOpenHelper {
 
     public void putSheduleToDB(ArrayList<Lesson> lessons, String tableName) {
         clearTable(tableName);
-        for (int i = 0; i < lessons.size(); i++) {
-            System.out.println(lessons.get(i).toString());
-        }
         System.out.println("Putting lessons to db...");
         try {
             for (int i = 0; i < lessons.size(); i++) {
@@ -154,9 +151,8 @@ public class DBManager extends SQLiteOpenHelper {
                 String numberOfClass = lessons.get(i).getClassNumber();
                 String lesson = lessons.get(i).getLessonTitle();
                 String weekDay = lessons.get(i).getWeekDay();
-                if (lessons.get(i).getLessonNumber() != 9)
-                    localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
-                            + " , '" + lesson + "', " + numberOfClass + ", '" + weekDay + "');");
+                localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
+                        + " , '" + lesson + "', " + numberOfClass + ", '" + weekDay + "');");
                 System.out.println("Put to db lesson (" + numberOfLesson + ", "
                         + lesson + ", " + numberOfClass + ", " + weekDay + ").");
             }

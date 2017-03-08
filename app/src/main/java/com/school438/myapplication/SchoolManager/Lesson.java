@@ -15,12 +15,26 @@ public class Lesson {
     private String lessonTitle;
     private String weekDay;
     private String DAY = null;
+    private boolean isView = false;
 
     public Lesson(int lessonNumber, String classNumber, String lessonTitle, String weekDay) {
         this.lessonNumber = lessonNumber;
         this.lessonTitle = lessonTitle;
         this.classNumber = classNumber;
         this.weekDay = weekDay;
+    }
+
+    public Lesson makeItView(){
+        isView = true;
+        return this;
+    }
+
+    public boolean isView(){
+        return isView;
+    }
+
+    public void incLessonNumber(){
+        this.lessonNumber ++;
     }
 
     public String getLessonTitle() {
@@ -119,10 +133,14 @@ public class Lesson {
     }
 
     public boolean isEmpty() {
-        if (!isDay()) {
-            return lessonTitle.equals(EMPTY_LESSON);
+        if (lessonTitle != null) {
+            if (!isDay()) {
+                return lessonTitle.equals(EMPTY_LESSON);
+            } else {
+                return isDay();
+            }
         } else {
-            return isDay();
+            return true;
         }
     }
 

@@ -12,7 +12,8 @@
         <ListView
             android:id="@+id/list_view_lessons"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:divider="#00000000">
 
         </ListView>
 

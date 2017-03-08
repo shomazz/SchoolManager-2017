@@ -80,7 +80,7 @@ public class SheduleFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pDialog = new ProgressDialog(v.getContext());
+            pDialog = new ProgressDialog(context);
             pDialog.setMessage("Сохраняю расписание...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
@@ -90,10 +90,7 @@ public class SheduleFragment extends Fragment {
         @Override
         protected String doInBackground(String... strings) {
             try {
-                dbManager.putSheduleToDB(adapterLessons.getLessons(), tableName);
-                lessonsArray = dbManager.getAllLessonsFromLocalDB(tableName);
-                adapterLessons = new AdapterCustomLessonsEdit
-                        (AdapterCustomLessonsEdit.makeSheduleForEditor(lessonsArray), context);
+                dbManager.putSheduleToDB(adapterLessons.getLessonsForDB(), tableName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -103,6 +100,9 @@ public class SheduleFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            lessonsArray = dbManager.getAllLessonsFromLocalDB(tableName);
+            adapterLessons = new AdapterCustomLessonsEdit
+                    (AdapterCustomLessonsEdit.makeSheduleForMainListView(lessonsArray), context);
             lessonsListView.setAdapter(adapterLessons);
             lessonsListView.deferNotifyDataSetChanged();
             pDialog.dismiss();
