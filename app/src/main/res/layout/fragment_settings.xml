@@ -1,11 +1,37 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.school438.myapplication.Fragments.SettingsFragment">
+    tools:context="com.school438.myapplication.Fragments.SettingsFragment"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/frameLayout">
+
+    <Button
+        android:id="@+id/download_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFa02c89"
+        android:padding="6dp"
+        android:text="ОБНОВИТЬ РАСПИСАНИЕ"
+        android:textColor="#FFFFFFFF"
+        android:textSize="21sp"
+        android:layout_margin="19dp"
+        android:layout_gravity="center"/>
+
+    </FrameLayout>
 
     <TextView
+        android:paddingLeft="8dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="Вы загрузите текущее расписние школы , но при этом все ваши изменения будут потеряны"
+        android:textColor="#FF555555"
+        android:layout_below="@+id/frameLayout"
+        android:layout_alignParentStart="true" />
 
-</FrameLayout>
+</RelativeLayout>

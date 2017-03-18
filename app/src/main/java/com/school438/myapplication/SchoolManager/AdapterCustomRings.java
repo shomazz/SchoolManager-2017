@@ -46,7 +46,7 @@ public class AdapterCustomRings extends BaseAdapter {
         holder.ringNumber = (TextView) view.findViewById(R.id.rings_number);
         holder.ringTxt = (TextView) view.findViewById(R.id.rings_time);
         System.out.println(rings.get(position).getNumber() + "  " + rings.get(position).getTime());
-        holder.ringNumber.setText(rings.get(position).getNumber());
+        holder.ringNumber.setText("" + rings.get(position).getNumber());
         holder.ringTxt.setText(rings.get(position).getTime());
         return view;
     }

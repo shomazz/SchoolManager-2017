@@ -10,6 +10,11 @@ public class Ring {
         this.time = time;
     }
 
+    @Override
+    public String toString(){
+        return "" + number + "  " + time;
+    }
+
     public String getTime (){
         return time;
     }

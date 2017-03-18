@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.school438.myapplication.Fragments.RingsFragment">
+    tools:context="com.school438.myapplication.Fragments.RingsFragment"
+    android:background="@color/feed_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +13,8 @@
         <ListView
             android:id="@+id/list_view_rings"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:divider="#00000000">
 
         </ListView>
 

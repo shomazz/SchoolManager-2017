@@ -1,22 +1,28 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.school438.myapplication.Fragments.SheduleFragment">
+    tools:context="com.school438.myapplication.Fragments.SheduleFragment"
+    android:id="@+id/swipe_refresh_shedule">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <ListView
-            android:id="@+id/list_view_lessons"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="#00000000">
+            android:orientation="vertical">
 
-        </ListView>
+            <ListView
+                android:id="@+id/list_view_lessons"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="#00000000">
 
-    </LinearLayout>
+            </ListView>
 
-</FrameLayout>
+        </LinearLayout>
+
+    </FrameLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

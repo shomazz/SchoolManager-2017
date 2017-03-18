@@ -1,5 +1,6 @@
 package com.school438.myapplication.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -36,6 +37,7 @@ public class NewsFragment extends Fragment {
     private AdapterCustomNews adapterNews;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Toast errorToast;
+    private Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class NewsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_news, container, false);
+        context = v.getContext();
         errorToast = Toast.makeText(v.getContext(), "Отсутствует подключение к интернету :(", Toast.LENGTH_SHORT);
         newsListView = (ListView) v.findViewById(R.id.list_view_news);
         swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh);
@@ -90,10 +93,16 @@ public class NewsFragment extends Fragment {
         Element mainDiv;
         Elements days;
         Elements titles;
+        ProgressDialog pDialog;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            pDialog = new ProgressDialog(context);
+            pDialog.setMessage("Гружу новости...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
         }
 
         @Override
@@ -122,6 +131,7 @@ public class NewsFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            pDialog.dismiss();
             adapterNews = new AdapterCustomNews(newsArrayList, getActivity());
             newsListView.setAdapter(adapterNews);
             if (swipeRefreshLayout != null)

@@ -62,7 +62,10 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
                     if (lessons.get(position).getLessonTitle() != null) {
                         holder.lessonNumber.setText("" + lessons.get(position).getLessonNumber());
                         if (!lessons.get(position).isEmpty()) {
-                            holder.classNumber.setText("" + lessons.get(position).getClassNumber(), TextView.BufferType.EDITABLE);
+                            if (lessons.get(position).getClassNumber() == null || lessons.get(position).getClassNumber().equals("null"))
+                                holder.classNumber.setHint("Каб.");
+                            else
+                                holder.classNumber.setText("" + lessons.get(position).getClassNumber(), TextView.BufferType.EDITABLE);
                             holder.lesson.setText(lessons.get(position).getLessonTitle().toString(), TextView.BufferType.EDITABLE);
                         } else {
                             holder.lesson.setHint(Lesson.EMPTY_LESSON);
@@ -93,7 +96,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
 
             @Override
             public void onClick(View view) {
-                try{
+                try {
                     int lessonNumber = Integer.parseInt(holder.lessonNumberEdit.getText().toString());
                     String title = holder.lesson.getText().toString();
                     String classNumber = holder.classNumber.getText().toString();
@@ -101,7 +104,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
                     Lesson lesson = new Lesson(lessonNumber, classNumber, title, weekDay);
                     addLessonToArray(lesson, weekDay, lessonNumber);
                     notifyDataSetChanged();
-                } catch (Exception e){
+                } catch (Exception e) {
                     Toast t = Toast.makeText(context, "Введите номер класса и название урока", Toast.LENGTH_SHORT);
                     t.show();
                     e.printStackTrace();
@@ -121,8 +124,8 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
         }
         this.lessons.add(position + lessonNumber, lesson);
         founded = false;
-        for (int k = 1 + position + lessonNumber; !founded; k++){
-            if(!lessons.get(k).isAddNewLesson())
+        for (int k = 1 + position + lessonNumber; !founded; k++) {
+            if (!lessons.get(k).isAddNewLesson())
                 lessons.get(k).incLessonNumber();
             else founded = true;
         }
@@ -204,27 +207,30 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
         });
         holder.lessonNumberEdit.addTextChangedListener(new TextWatcher() {
             String word;
+
             @Override
             public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
                 if (holder.lessonNumberEdit.getText().toString().equals("")) {
                     holder.lessonNumberEdit.setHint("№");
                 } else if (arg0.toString().length() > arg1) {
-                    char c = holder.lesson.getText().toString().charAt(arg1);
+                    char c = holder.lessonNumberEdit.getText().toString().charAt(arg1);
                     System.out.println("" + c + "    " + arg0 + "   " + (int) c + "");
                     if (c == 0 || c == 10) {
                         holder.lessonNumberEdit.clearFocus();
                         holder.lessonNumberEdit.setText(word);
-                    } else if ((arg0.toString().length() > 1) || !(c >= 48 && c <= 57)){
+                    } else if (arg0.toString().length() <= 1 && c >= 48 && c <= 57) {
+
+                    } else {
                         Toast t = Toast.makeText(context, "Введите номер урока", Toast.LENGTH_SHORT);
                         t.show();
-                       // holder.lessonNumberEdit.setText(word);
+                        holder.lessonNumberEdit.setText(word);
                     }
                 }
             }
 
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                word = holder.lesson.getText().toString();
+                word = holder.lessonNumberEdit.getText().toString();
             }
 
             @Override
@@ -284,7 +290,7 @@ public class AdapterCustomLessonsEdit extends BaseAdapter {
                         holder.classNumber.clearFocus();
                         holder.classNumber.setText(word);
                     } else if (c >= 48 && c <= 57) {
-                        lessons.get(holder.ref).setLessonTitle(arg0.toString());
+                        lessons.get(holder.ref).setClassNumber(arg0.toString());
                     } else {
                         Toast t = Toast.makeText(context, "Введите номер кабинета", Toast.LENGTH_SHORT);
                         t.show();

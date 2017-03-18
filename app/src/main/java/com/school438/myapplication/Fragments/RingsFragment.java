@@ -37,6 +37,10 @@ public class RingsFragment extends Fragment {
         ringsArr = dbManager.getAllRings();
         adapterRings = new AdapterCustomRings(ringsArr, v.getContext());
         ringsListView.setAdapter(adapterRings);
+        View vv = inflater.inflate(R.layout.view_after_add_lesson,null);
+        ringsListView.addFooterView(vv);
+        vv = inflater.inflate(R.layout.list_item_day, null);
+        ringsListView.addHeaderView(vv);
         return v;
     }
 }

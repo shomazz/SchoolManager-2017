@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class DBManager extends SQLiteOpenHelper {
 
-    public static final String DB_ADRESS = "http://w3bdrop.ru/";
+    public static final String DB_ADRESS = "http://w3bs.ru/data/load.php";
     public static final String LOCAL_DB_NAME = "data.db";
     public static final String RINGS_TABLE_NAME = "RINGS";
     public static DBManager dbManager;
@@ -132,8 +132,9 @@ public class DBManager extends SQLiteOpenHelper {
                 int ringNumber = cursor.getInt(cursor.getColumnIndex("NUMBER"));
                 String ringsTime = cursor.getString(cursor.getColumnIndex("TIME"));
                 Ring ring = new Ring(ringNumber, ringsTime);
-                rings.add(ring);
+                rings.add(0,ring);
                 hasMoreData = cursor.moveToNext();
+                System.out.println("Get from DB ring : " + ring.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -151,10 +152,17 @@ public class DBManager extends SQLiteOpenHelper {
                 String numberOfClass = lessons.get(i).getClassNumber();
                 String lesson = lessons.get(i).getLessonTitle();
                 String weekDay = lessons.get(i).getWeekDay();
-                localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
-                        + " , '" + lesson + "', " + numberOfClass + ", '" + weekDay + "');");
-                System.out.println("Put to db lesson (" + numberOfLesson + ", "
-                        + lesson + ", " + numberOfClass + ", " + weekDay + ").");
+                if (numberOfClass != null && !numberOfClass.isEmpty()) {
+                    System.out.println("Put to db lesson (" + numberOfLesson + ", "
+                            + lesson + ", " + numberOfClass + ", " + weekDay + ").");
+                    localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
+                            + " , '" + lesson + "', " + numberOfClass + ", '" + weekDay + "');");
+                } else {
+                    System.out.println("Put to db lesson (" + numberOfLesson + ", "
+                            + lesson + ", " + "NULL" + ", " + weekDay + ").");
+                    localDatabase.execSQL("INSERT INTO " + tableName + " VALUES (" + numberOfLesson
+                            + " , '" + lesson + "', " + "NULL" + ", '" + weekDay + "');");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

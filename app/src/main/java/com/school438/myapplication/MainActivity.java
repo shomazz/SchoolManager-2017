@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String APP_PREFERENCES_CURRENT_CLASS = "currentclass";
     public static final String APP_PREFERENCES_CURRENT_TAG = "currenttag";
+    public static final String APP_PREFERENCES_DOWNLOADED = "dbdownloaded";
     public static final String APP_PREFERENCES = "mysettings";
     public static String dbPath;
     public static String CURRENT_TABLE_NAME = DBManager.ELEVENTH_A;
@@ -83,6 +84,15 @@ public class MainActivity extends AppCompatActivity {
         mHandler = new Handler();
         setUpFloatButton();
         recieveSettings();
+        if (mSettings.contains(APP_PREFERENCES_DOWNLOADED)) {
+            if (!mSettings.getBoolean(APP_PREFERENCES_DOWNLOADED, true))
+                dbManager.copyDBFromAssets(this);
+        } else {
+            dbManager.copyDBFromAssets(this);
+            SharedPreferences.Editor editor = mSettings.edit();
+            editor.putBoolean(APP_PREFERENCES_DOWNLOADED, true);
+            editor.apply();
+        }
         setUpNavigationView();
         createFragments();
         loadHomeFragment();
@@ -153,8 +163,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sheduleFragment.saveShedule();
-                /*DownloadDBTask d = new DownloadDBTask();
-                d.execute();*/
             }
         });
     }
@@ -209,6 +217,8 @@ public class MainActivity extends AppCompatActivity {
                     switch (menuItem.getItemId()) {
                         case R.id.nav_rings:
                             CURRENT_TAG = TAG_RINGS;
+                            /*Toast t = Toast.makeText(MainActivity.this, "Скоро добавим :)", Toast.LENGTH_SHORT);
+                            t.show();*/
                             break;
                         case R.id.nav_news:
                             CURRENT_TAG = TAG_NEWS;
@@ -356,55 +366,5 @@ public class MainActivity extends AppCompatActivity {
     public void onLinkButton(View v) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://telegram.me/school438"));
         startActivity(browserIntent);
-    }
-
-    public class DownloadDBTask extends AsyncTask<Void, Void, Void> {
-
-        ProgressDialog pDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Гружу расписание классов...");
-            pDialog.setIndeterminate(false);
-            pDialog.setCancelable(false);
-            pDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                File file = new File(dbPath, DBManager.LOCAL_DB_NAME);
-                URL url = new URL(DBManager.DB_ADRESS + "/" + DBManager.LOCAL_DB_NAME);
-                System.out.println("Start Downloading database...");
-                URLConnection conection = url.openConnection();
-                conection.connect();
-                int lenghtOfFile = 500000;
-                InputStream input = new BufferedInputStream(url.openStream(), lenghtOfFile);
-                OutputStream output = new FileOutputStream(file);
-                System.out.println("File's absolute path : \"" + file.getAbsolutePath() + "\";");
-                byte data[] = new byte[lenghtOfFile];
-                long total = 0;
-                int count = 0;
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    output.write(data, 0, count);
-                }
-                output.flush();
-                output.close();
-                input.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            pDialog.dismiss();
-            System.out.println("DB Downloaded path : \"" + dbPath + DBManager.LOCAL_DB_NAME + "\";");
-        }
     }
 }
